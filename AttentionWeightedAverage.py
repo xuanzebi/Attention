@@ -21,6 +21,7 @@ class Attention(nn.Module):
         feature_dim = self.feature_dim
         step_dim = self.step_dim
 
+        print(x.contiguous().view(-1, feature_dim).size())
         eij = torch.mm(
             x.contiguous().view(-1, feature_dim), 
             self.weight
@@ -36,9 +37,15 @@ class Attention(nn.Module):
             a = a * mask
 
         a = a / torch.sum(a, 1, keepdim=True) + 1e-10
-
+        print(torch.unsqueeze(a, -1).size())
         weighted_input = x * torch.unsqueeze(a, -1)
         return torch.sum(weighted_input, 1)
+
+# 句子长度为30，batch_size 为10，特征维度为200
+lstm_attention = Attention(200, 30)
+x = torch.randn(10, 30, 200)
+y = lstm_attention(x)
+print(y.shape)
 
 
 # keras
